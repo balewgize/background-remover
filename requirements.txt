@@ -1,9 +1,4 @@
-streamlit>=1.10.0
-rembg>=2.0.17
-Pillow>=9.0.0
-matplotlib>=3.5.2
-loguru==0.6.0
-
-# Extra
-python-dotenv==0.20.0
-gotipy==0.2
+Pillow==9.3.0
+python-dotenv>=0.20.0
+rembg==2.0.30
+streamlit==1.20.0
