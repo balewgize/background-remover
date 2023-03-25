@@ -6,7 +6,7 @@
   <p align="center">
     Remove background from images using pre-trained ML model.
     <br />
-    <a href="https://balewgize-bg-remover.streamlit.app/" target="_blank"><strong>View Demo »</strong></a>
+    <a href="https://bgremover.streamlit.app/" target="_blank"><strong>View Demo »</strong></a>
     <br />
   </p>
 </div>
@@ -14,23 +14,23 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Screenshot](screenshot/example.png?raw=true "Tomar")](https://balewgize-bg-remover.streamlit.app/)
+[![Screenshot](screenshot/example.png?raw=true "Tomar")](https://bgremover.streamlit.app/)
 
-A web app built with ```Streamlit``` that enables users to remove background from images using pre-trained ML model. It allows users to download the final result image with a transparent background. 
+A web app built with ```Python``` and ```Streamlit``` that enables users to remove background from images using pre-trained ML models.
 
 It does well for most images that doesn't have messy background but I'm sure you won't expect photoshop like results :) 
 
 ### Features
 - Downloadable final result
 - Transparent background
-- Suport multiple images
+- Support multiple images
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With
 - Python
-- Streamlit
 - Rembg
+- Streamlit
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -46,12 +46,12 @@ To get a local copy up and running follow these simple steps.
 
 ### Installation
 
-1. Clone the repo and navigate to ```bg-remover``` directory 
+1. Clone the repo and navigate to ```background-remover``` directory 
    ```
-   git clone https://github.com/balewgize/bg-remover.git
+   git clone https://github.com/balewgize/background-remover.git
    ```
    ```
-   cd bg-remover
+   cd background-remover
    ```
 2. Install required packages (virtual environments recommended)
    ```
@@ -65,6 +65,7 @@ To get a local copy up and running follow these simple steps.
    streamlit run bg_remover.py
    ```
 4. Goto http://localhost:8501 on your browser
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 Thanks!
