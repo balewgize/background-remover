@@ -44,6 +44,12 @@ def build_ui():
         accept_multiple_files=MULTIPLE_IMAGES_ALLOWED,
         key=st.session_state["key"],
     )
+    footer = """
+    <div style="position: fixed; bottom: 0;">
+    <p>Developed with ❤ by <a href="https://github.com/balewgize" target="_blank">@balewgize</a></p>
+    </div>"""
+    st.sidebar.markdown(footer, unsafe_allow_html=True)
+
     return uploaded_files
 
 
@@ -169,14 +175,9 @@ if __name__ == "__main__":
         initial_sidebar_state="expanded",
     )
     st.markdown(
-        "<style> #MainMenu {visibility: hidden;}</style>", unsafe_allow_html=True
+        "<style> footer {visibility: hidden;} #MainMenu {visibility: hidden;}</style>",
+        unsafe_allow_html=True,
     )
-    footer = """
-    <footer style="position: fixed; bottom: 0; right: 20px;">
-    <p>Developed with ❤ by <a href="https://github.com/balewgize" target="_blank">@balewgize</a></p>
-    </footer>"""
-    st.markdown(footer, unsafe_allow_html=True)
-
     session_id = str(uuid.uuid4())
     if "key" not in st.session_state:
         st.session_state["key"] = session_id
