@@ -161,17 +161,21 @@ def main():
 
 
 if __name__ == "__main__":
+    # logger.add("logs.log")
+
     st.set_page_config(
         page_title="Background Remover",
         page_icon="✂️",
         initial_sidebar_state="expanded",
     )
     st.markdown(
-        "<style> footer {visibility: hidden;}"
-        "#MainMenu {visibility: hidden;}</style>",
-        unsafe_allow_html=True,
+        "<style> #MainMenu {visibility: hidden;}</style>", unsafe_allow_html=True
     )
-    # logger.add("logs.log")
+    footer = """
+    <footer style="position: fixed; bottom: 0; right: 20px;">
+    <p>Developed with ❤ by <a href="https://github.com/balewgize" target="_blank">@balewgize</a></p>
+    </footer>"""
+    st.markdown(footer, unsafe_allow_html=True)
 
     session_id = str(uuid.uuid4())
     if "key" not in st.session_state:
