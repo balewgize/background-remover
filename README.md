@@ -4,7 +4,7 @@
   <h3 align="center">Background remover</h3>
 
   <p align="center">
-    Remove background from images using pre-trained ML model.
+    Remove background from images using pre-trained ML models.
     <br />
     <a href="https://bgremover.streamlit.app/" target="_blank"><strong>View Demo »</strong></a>
     <br />
@@ -29,8 +29,8 @@ It does well for most images that doesn't have messy background but I'm sure you
 
 ### Built With
 - Python
-- Rembg
-- Streamlit
+- <a href="https://github.com/danielgatis/rembg" target="_blank">Rembg</a>
+- <a href="https://streamlit.io/" target="_blank">Streamlit</a> 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -67,5 +67,7 @@ To get a local copy up and running follow these simple steps.
 4. Goto http://localhost:8501 on your browser
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+For more information see: [Alyetama](https://github.com/Alyetama/Rembg-Online)
 
 Thanks!
