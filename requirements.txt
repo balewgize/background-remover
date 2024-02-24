@@ -1,2 +1,2 @@
-rembg==2.0.30
-streamlit==1.20.0
+rembg==2.0.54
+streamlit==1.31.1

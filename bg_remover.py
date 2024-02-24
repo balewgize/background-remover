@@ -1,185 +1,137 @@
 import io
-import tempfile
-import time
-import uuid
 import zipfile
 from pathlib import Path
-
 import streamlit as st
 from PIL import Image
-
-# from loguru import logger
 from rembg import remove
+import uuid
 
-
-MAX_FILES = 5  # number of images to be processed once
-MULTIPLE_IMAGES_ALLOWED = True
+MAX_FILES = 5
 ALLOWED_TYPES = ["png", "jpg", "jpeg"]
 
 
-def remove_bg(input_data, path):
-    """Remove background from an image using rembg."""
-    result = remove(input_data)
-    img = Image.open(io.BytesIO(result)).convert("RGBA")
-    if Path(path).suffix != ".png":
-        img.LOAD_TRUNCATED_IMAGES = True
-    return img
+def setup_page():
+    """Sets up the Streamlit page configuration."""
+    st.set_page_config(page_title="Background Remover", page_icon="✂️")
+    hide_streamlit_style()
 
 
-def build_ui():
-    """Show UI of the app with file upload form"""
-    st.markdown("### Image Backgroud Remover")
-    st.markdown("Remove background from images using pre-trained ML model.")
-    st.markdown("\n")
+def hide_streamlit_style():
+    """Hides default Streamlit styling."""
+    st.markdown(
+        "<style>footer {visibility: hidden;} #MainMenu {visibility: hidden;}</style>",
+        unsafe_allow_html=True,
+    )
 
-    if st.sidebar.button("CLEAR"):
-        st.session_state["key"] = session_id
-        st.experimental_rerun()
 
-    st.sidebar.markdown("---")
+def initialize_session():
+    """Initializes a unique session ID."""
+    if "uploader_key" not in st.session_state:
+        st.session_state["uploader_key"] = str(uuid.uuid4())
+
+
+def display_ui():
+    """Displays the user interface for file upload and returns uploaded files."""
+    st.title("Image Background Remover")
+    st.markdown("Remove background from images using a pre-trained ML model.")
+
+    if st.sidebar.button("Clear"):
+        st.session_state["uploader_key"] = str(uuid.uuid4())
 
     uploaded_files = st.sidebar.file_uploader(
-        f"Choose one or multiple images (max: {MAX_FILES})",
+        "Choose images",
         type=ALLOWED_TYPES,
-        accept_multiple_files=MULTIPLE_IMAGES_ALLOWED,
-        key=st.session_state["key"],
+        accept_multiple_files=True,
+        key=st.session_state.get("uploader_key", "file_uploader"),
     )
-    footer = """
-    <div style="position: fixed; bottom: 0;">
-    <p>Developed with ❤ by <a href="https://github.com/balewgize" target="_blank">@balewgize</a></p>
-    </div>"""
-    st.sidebar.markdown(footer, unsafe_allow_html=True)
 
+    display_footer()
     return uploaded_files
 
 
-def get_image_bytes(uploaded_files):
-    """Return bytes data for each uploaded file."""
-    img_bytes = []
-    for uploaded_file in uploaded_files:
-        bytes_data = uploaded_file.getvalue()
-        if "btn" not in st.session_state:
-            # st.session_state.my_button = True
-            img_bytes.append((uploaded_file, bytes_data))
-
-    return img_bytes
+def display_footer():
+    """Displays a custom footer."""
+    footer = """<div style="position: fixed; bottom: 0; width:100%; text-align: center;">
+                <p>Developed with ❤ by <a href="https://github.com/balewgize" target="_blank">@balewgize</a></p>
+                </div>"""
+    st.markdown(footer, unsafe_allow_html=True)
 
 
-def main():
-    uploaded_files = build_ui()
-
-    if len(uploaded_files) > MAX_FILES:
-        st.warning(
-            f"Maximum number of images reached! Only the first {MAX_FILES} will be processed."
-        )
-        uploaded_files = uploaded_files[:MAX_FILES]
-
-    # uploaded_files = [img for img in uploaded_files if img]
+def process_and_display_images(uploaded_files):
+    """Processes the uploaded files and displays the original and result images."""
     if not uploaded_files:
+        st.warning("Please upload an image.")
         return
-
-    # logger.info(f"Uploaded the following files: {uploaded_files}")
-
-    progress_bar = st.empty()
-    download_btn = st.empty()
-
-    image_row = st.empty()  # row to hold original and result image
-    original, result = image_row.columns(2)
-    st.text("\n")
-
-    # show original images
-    img_bytes = get_image_bytes(uploaded_files)
-    for b in img_bytes:
-        original.image(b[1], caption="Original")
 
     if not st.sidebar.button("Remove Background"):
         return
 
-    nobg_images = []  # result images with no background
+    if len(uploaded_files) > MAX_FILES:
+        st.warning(f"Maximum {MAX_FILES} files will be processed.")
+        uploaded_files = uploaded_files[:MAX_FILES]
 
-    progress_text = "Operation in progress. Please wait."
-    progress = progress_bar.progress(0, text=progress_text)
+    results = []
 
-    with st.spinner("Processing image..."):
-        for i, image_byte in enumerate(img_bytes, start=1):
-            uploaded_file, bytes_data = image_byte
-            if isinstance(uploaded_file, int):
-                img_path = Path(str(uploaded_file) + ".png")
-            else:
-                img_path = Path(uploaded_file.name)
+    with st.spinner("Removing backgrounds..."):
+        for uploaded_file in uploaded_files:
+            original_image = Image.open(uploaded_file).convert("RGBA")
+            result_image = remove_background(uploaded_file.getvalue())
+            results.append((original_image, result_image, uploaded_file.name))
 
-            img = remove_bg(bytes_data, img_path)
-            with io.BytesIO() as f:
-                img.save(f, format="PNG", quality=100, subsampling=0)
-                data = f.getvalue()
+    for original, result, name in results:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.image(original, caption="Original")
+        with col2:
+            st.image(result, caption="Result")
 
-            nobg_images.append((img, img_path, data))
-
-            cur_progress = int(100 / len(img_bytes))
-            progress.progress(cur_progress * i)
-
-        time.sleep(1)
-        progress_bar.empty()
-        progress.success("Complete!")
-
-        # show result image along side original image
-        for res in nobg_images:
-            result.image(res[0], caption="Result")
-
-    # multiple results will be downloaded as zip file
-    if len(nobg_images) > 1:
-        with io.BytesIO() as tmp_zip:
-            with zipfile.ZipFile(tmp_zip, "w") as z:
-                for img, path, data in nobg_images:
-                    with tempfile.NamedTemporaryFile() as fp:
-                        img.save(fp.name, format="PNG")
-                        z.write(
-                            fp.name,
-                            arcname=path.name,
-                            compress_type=zipfile.ZIP_DEFLATED,
-                        )
-            zip_data = tmp_zip.getvalue()
-
-        download_btn.download_button(
-            label=f"Download as ZIP",
-            data=zip_data,
-            file_name=f"results_{int(time.time())}.zip",
-            mime="application/zip",
-            key="btn",
-        )
+    if len(results) > 1:
+        download_zip(results)
     else:
-        try:
-            output = nobg_images[0]
-            download_btn.download_button(
+        for _, result, name in results:
+            st.download_button(
                 label="Download Result",
-                data=output[-1],
-                file_name=f"{output[1].stem}_nobg.png",
+                data=img_to_bytes(result),
+                file_name=f"{Path(name).stem}_nobg.png",
                 mime="image/png",
-                key="btn",
             )
-        except IndexError:
-            st.error("No more images to process!")
-        finally:
-            st.session_state["key"] = session_id
 
-    time.sleep(3)
-    progress_bar.empty()
+
+def remove_background(image_bytes):
+    """Removes the background from an image."""
+    result = remove(image_bytes)
+    return Image.open(io.BytesIO(result)).convert("RGBA")
+
+
+def img_to_bytes(img):
+    """Converts an Image object to bytes."""
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()
+
+
+def download_zip(images):
+    """Allows the user to download results as a ZIP file."""
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        for _, image, name in images:
+            image_bytes = img_to_bytes(image)
+            zip_file.writestr(f"{Path(name).stem}_nobg.png", image_bytes)
+
+    st.download_button(
+        label="Download All as ZIP",
+        data=zip_buffer.getvalue(),
+        file_name="background_removed_images.zip",
+        mime="application/zip",
+    )
+
+
+def main():
+    setup_page()
+    initialize_session()
+    uploaded_files = display_ui()
+    process_and_display_images(uploaded_files)
 
 
 if __name__ == "__main__":
-    # logger.add("logs.log")
-
-    st.set_page_config(
-        page_title="Background Remover",
-        page_icon="✂️",
-        initial_sidebar_state="expanded",
-    )
-    st.markdown(
-        "<style> footer {visibility: hidden;} #MainMenu {visibility: hidden;}</style>",
-        unsafe_allow_html=True,
-    )
-    session_id = str(uuid.uuid4())
-    if "key" not in st.session_state:
-        st.session_state["key"] = session_id
-
     main()
