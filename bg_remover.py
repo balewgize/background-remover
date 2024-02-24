@@ -88,13 +88,7 @@ def process_and_display_images(uploaded_files):
     if len(results) > 1:
         download_zip(results)
     else:
-        for _, result, name in results:
-            st.download_button(
-                label="Download Result",
-                data=img_to_bytes(result),
-                file_name=f"{Path(name).stem}_nobg.png",
-                mime="image/png",
-            )
+        download_result(results[0])
 
 
 def remove_background(image_bytes):
@@ -109,6 +103,15 @@ def img_to_bytes(img):
     img.save(buf, format="PNG")
     return buf.getvalue()
 
+def download_result(image):
+    """Allows the user to download the result image."""
+    _, result, name = image
+    st.download_button(
+        label="Download Result",
+        data=img_to_bytes(result),
+        file_name=f"{Path(name).stem}_nobg.png",
+        mime="image/png",
+    )
 
 def download_zip(images):
     """Allows the user to download results as a ZIP file."""
