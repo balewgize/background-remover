@@ -68,6 +68,4 @@ To get a local copy up and running follow these simple steps.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-For more information see: [Alyetama](https://github.com/Alyetama/Rembg-Online)
-
 Thanks!
