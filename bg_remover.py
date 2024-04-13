@@ -32,11 +32,7 @@ def initialize_session():
 
 def display_ui():
     """Displays the user interface for file upload and returns uploaded files."""
-    st.title("Image Background Remover")
-    st.markdown("Remove background from images using a pre-trained ML model.")
-
-    if st.sidebar.button("Clear"):
-        st.session_state["uploader_key"] = str(uuid.uuid4())
+    st.sidebar.markdown("## Image Background Remover")
 
     uploaded_files = st.sidebar.file_uploader(
         "Choose images",
@@ -51,10 +47,10 @@ def display_ui():
 
 def display_footer():
     """Displays a custom footer."""
-    footer = """<div style="position: fixed; bottom: 0; width:100%; text-align: center;">
+    footer = """<div style="position: fixed; bottom: 0; left: 20px;">
                 <p>Developed with ❤ by <a href="https://github.com/balewgize" target="_blank">@balewgize</a></p>
                 </div>"""
-    st.markdown(footer, unsafe_allow_html=True)
+    st.sidebar.markdown(footer, unsafe_allow_html=True)
 
 
 def process_and_display_images(uploaded_files):
@@ -103,6 +99,7 @@ def img_to_bytes(img):
     img.save(buf, format="PNG")
     return buf.getvalue()
 
+
 def download_result(image):
     """Allows the user to download the result image."""
     _, result, name = image
@@ -112,6 +109,7 @@ def download_result(image):
         file_name=f"{Path(name).stem}_nobg.png",
         mime="image/png",
     )
+
 
 def download_zip(images):
     """Allows the user to download results as a ZIP file."""
