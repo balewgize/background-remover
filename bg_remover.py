@@ -7,7 +7,7 @@ from rembg import remove
 import uuid
 
 MAX_FILES = 5
-ALLOWED_TYPES = ["png", "jpg", "jpeg"]
+ALLOWED_TYPES = ["png", "jpg", "jpeg", "avif"]
 
 
 def setup_page():
@@ -87,10 +87,32 @@ def process_and_display_images(uploaded_files):
         download_result(results[0])
 
 
-def remove_background(image_bytes):
+def remove_background(image_bytes,logo_size=(250, 100)):
     """Removes the background from an image."""
     result = remove(image_bytes)
-    return Image.open(io.BytesIO(result)).convert("RGBA")
+    img =  Image.open(io.BytesIO(result)).convert("RGBA")
+    white_bg = Image.new("RGBA", img.size, (255, 255, 255, 255))
+
+    # Composite the original image onto the white background
+    combined = Image.alpha_composite(white_bg, img)
+
+    # Convert to RGB and save to a BytesIO object
+    logo = Image.open('./tt45.png').convert("RGBA")
+    logo = logo.resize(logo_size, Image.LANCZOS)
+
+    # Calculate position to place the logo (top right corner)
+    position = (combined.width - logo.width - 100, 50)
+
+    # Paste the logo onto the combined image
+    combined.paste(logo, position, logo)
+
+    # Convert to RGB and save to a BytesIO object
+    combined = combined.convert("RGB")  # Remove alpha for formats like JPEG
+    output_bytes = io.BytesIO()
+    combined.save(output_bytes, format='JPEG')
+    output_bytes.seek(0)
+
+    return output_bytes
 
 
 def img_to_bytes(img):
